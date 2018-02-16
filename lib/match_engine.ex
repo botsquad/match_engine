@@ -4,5 +4,6 @@ defmodule MatchEngine do
   """
 
   defdelegate score(parts, doc), to: MatchEngine.Score
+  defdelegate filter(parts, doc), to: MatchEngine.Score
 
 end
