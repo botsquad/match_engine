@@ -3,7 +3,10 @@ defmodule MatchEngine do
   Documentation for MatchEngine.
   """
 
-  defdelegate score(parts, doc), to: MatchEngine.Score
-  defdelegate filter(parts, doc), to: MatchEngine.Score
+  defdelegate score(query, doc), to: MatchEngine.Score
+  defdelegate filter(query, doc), to: MatchEngine.Score
+
+  defdelegate score_all(docs, query), to: MatchEngine.Scoring
+  defdelegate filter_all(docs, query), to: MatchEngine.Scoring
 
 end
