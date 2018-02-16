@@ -13,15 +13,44 @@ the MongoDB query language and Solr.
 
 ```
 
+## Query language
+
+The query language consists of a nested Elixir "keyword list".
+
+A query is a list of term matches, where each term is scored
+individually and then summed. (This implies "or").
+
+
+
 ## Operators
+
 ### `_eq`
 
-Equality. Also doubles as set operator.
+Scores on the equality of the argument.
+
+    [title: "hello"]
+    [title: [_eq: "hello"]]
+
+Can also be used when the input document contains a list of values for the given field.
+
+
+### `_in`
+
+Scores when the document's value is a member of the given list.
+
+    [role: [_in: ["developer", "freelancer"]]]
+
+
 
 ### `_sim`
 
 Normalized string similarity. The max of the Normalised Levenshtein
 distance and Jaro distance.
+
+### `_geo`
+
+Score on the distance of the given location
+
 
 ### `_regex`
 
@@ -40,7 +69,6 @@ Combine matchers, adding the scores.
 ### `_not`
 
 Reverse the score of the nested matchers. (when score > 0, return 0, otherwise, return 1.
-
 
 ### Matcher weights
 
