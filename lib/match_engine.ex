@@ -3,16 +3,6 @@ defmodule MatchEngine do
   Documentation for MatchEngine.
   """
 
-  @doc """
-  Hello world.
+  defdelegate score(parts, doc), to: MatchEngine.Score
 
-  ## Examples
-
-      iex> MatchEngine.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

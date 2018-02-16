@@ -22,7 +22,7 @@ defmodule MatchEngine.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
+      {:simetric, "~> 0.2.0"},
     ]
   end
 end
