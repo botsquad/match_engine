@@ -8,9 +8,14 @@ the MongoDB query language and Solr.
 [title: [_eq: "hoi"]]
 [_and: [name: "Arjan", age: 36]]
 [_or: [name: "Arjan", age: 36]]
-
 [_not: [title: "foo"]]
+```
 
+Nested objects follow the shape of the data:
+
+```
+[user: [name: "Arjan"]]
+[_not: [user: [name: "Arjan"]]]
 ```
 
 ## Query language
