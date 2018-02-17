@@ -18,7 +18,6 @@ defmodule MatchEngine.DataTests do
     docs
     |> filter_all([title: "Amsterdam", key: "GM0363  "])
     |> Enum.slice(0..3)
-    |> IO.inspect(label: "x")
 
 #    title == "Aap"
 #    title =~ "Aap" ||
