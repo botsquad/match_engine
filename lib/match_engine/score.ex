@@ -1,12 +1,9 @@
 defmodule MatchEngine.Score do
 
   alias MatchEngine.Geo
+  alias MatchEngine.Query
 
-  @leaf_operators ~w(_eq _regex _sim _in _ne _geo)a
-
-  def leaf_operators do
-    @leaf_operators
-  end
+  @leaf_operators Query.leaf_operators
 
   def filter([], _doc) do
     score_map(0)
@@ -119,7 +116,7 @@ defmodule MatchEngine.Score do
   defp invert_score(%{score: score} = map) when score == 0 do
     Map.put(map, :score, 1)
   end
-  defp invert_score(%{score: score} = map) do
+  defp invert_score(%{score: _score} = map) do
     Map.put(map, :score, 0)
   end
 
@@ -148,7 +145,7 @@ defmodule MatchEngine.Score do
     |> Enum.reduce(score_map(initial), fn(score, overall) ->
       Map.merge(score, overall, fn(:score, s1, s2) ->
         resolver.(s1, s2)
-        (_k, v1, v2) ->
+        (_k, _v1, v2) ->
           v2
       end)
     end)

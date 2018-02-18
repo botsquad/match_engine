@@ -1,7 +1,11 @@
 defmodule MatchEngine.Query do
 
-  @leaf_operators MatchEngine.Score.leaf_operators
+  @leaf_operators ~w(_eq _regex _sim _in _ne _geo)a
   @logic_operators ~w(_and _or _not)a
+
+  def leaf_operators do
+    @leaf_operators
+  end
 
   def preprocess(q) when is_list(q) do
     q
