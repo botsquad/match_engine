@@ -50,6 +50,9 @@ defmodule MatchEngine.Query do
     [_eq: node]
   end
 
+  defp preprocess_leaf_op([{:_regex, _}, {:inverse, true} | rest] = node) do
+    node
+  end
   defp preprocess_leaf_op([{:_regex, re} | rest]) do
     re = "(?P<__match__>#{re})"
     [{:_regex, Regex.compile!(re)} | rest]

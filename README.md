@@ -82,6 +82,13 @@ regex, which then get added to the `_match` metadata map, as seen in the followi
     # regex matches with a capture called 'name'. It is boosted by weight.
     assert %{:score => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
 
+The regex match can also be inversed, where the document value is
+treated as the regular expression, and the query input is treated as
+the string to be matched. (No captures are supported in this case).
+
+    assert %{score: 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "foo"})
+
+
 ### `_geo`
 
 Calculate document score based on its geographical distance to a given

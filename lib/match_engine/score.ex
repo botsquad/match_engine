@@ -68,6 +68,17 @@ defmodule MatchEngine.Score do
         |> score_map(Map.delete(all, "__match__"))
     end
   end
+  defp score_part({field, [{:_regex, subject}, {:inverse, true} | _] = node}, doc) do
+    value = get_value(doc, field) || ""
+    case Regex.compile!(value) |> Regex.run(subject) do
+      nil ->
+        score_map(0)
+      [match] ->
+        (String.length(match) / String.length(subject))
+        |> weigh(node)
+        |> score_map()
+    end
+  end
   defp score_part({field, [{:_sim, expected} | _] = node}, doc) when is_binary(expected) do
     case get_value(doc, field) do
       list when is_list(list) ->
