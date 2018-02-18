@@ -18,14 +18,27 @@ Nested objects follow the shape of the data:
 [_not: [user: [name: "Arjan"]]]
 ```
 
+The queries can be run by calling `MatchEngine.score_all/2` or `MatchEngine.filter_all/2`.
+
+Queries are first preprocessed, and then executed on a list of search
+"documents". A "document" is just a normal Elixir map, with string
+keys.
+
+The preprocessing phase compiles any regexes, checks whether all
+operators exist, and de-nests nested field structures.
+
+The query phase runs the preprocessed query for each document in the
+list, by calculating the score for the given document, given the
+query. This score, including any additional metadata, is returned in a
+`_match` map inside the document.
+
+
 ## Query language
 
 The query language consists of a nested Elixir "keyword list".
 
 A query is a list of term matches, where each term is scored
 individually and then summed. (This implies "or").
-
-
 
 ## Operators
 
@@ -59,8 +72,38 @@ Score on the distance of the given location
 
 ### `_regex`
 
-Match a regex.
-Scores on the length of match divided by the total string length.
+Match a regular expression. The input is a string, which gets compiled
+into a regex. This operator scores on the length of match divided by
+the total string length. It is possible to add named captures to the
+regex, which then get added to the `_match` metadata map, as seen in the following exapmle:
+
+    # regex matches entire string, 100% score
+    assert %{score: 1} == score([title: [_regex: "foo"]], %{"title" => "foo"})
+    # regex matches with a capture called 'name'. It is boosted by weight.
+    assert %{:score => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
+
+### `_geo`
+
+Calculate document score based on its geographical distance to a given
+point. The geo distance (both in the operator and in the document) can
+be given as:
+
+ - A regular list, e.g. `[4.56, 52.33]`
+ - A keyword list, e.g. `[lat: 52.33, lon: 4.56]`
+ - A map with atom keys, e.g. `%{lat: 52.33, lon: 4.56}`
+ - A map with string keys, e.g. `%{"lat" => 52.33, "lon" => 4.56}`
+
+The calculated `distance` is returned in meters, as part of the `_match` map.
+
+An extra argument, `max_distance` can be given to the operator which
+specifies the maximum cutoff point. It defaults to 100km. (100_000).
+Distance is scored logarithmically with respect to the maximum
+distance.
+
+    doc = %{"location" => %{"lat" => 52.340500999999996, "lon" => 4.8832816}}
+    q = [location: [_geo: [lat: 52.340500999999996, lon: 4.8832816]]]
+    assert %{score: 1, distance: 0.0} == score(q, doc)
+
 
 ###  `_and`
 
