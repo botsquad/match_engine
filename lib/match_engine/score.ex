@@ -70,7 +70,7 @@ defmodule MatchEngine.Score do
   end
   defp score_part({field, [{:_regex, subject}, {:inverse, true} | _] = node}, doc) do
     value = get_value(doc, field) || ""
-    case Regex.compile!(value) |> Regex.run(subject) do
+    case Regex.compile!(value, "i") |> Regex.run(subject) do
       nil ->
         score_map(0)
       [match] ->

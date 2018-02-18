@@ -52,7 +52,7 @@ defmodule MatchEngineTest do
     test "regex - inverse" do
       assert %{score: 1} == score([title: [_regex: "foo", inverse: true]], %{"title" => "foo"})
       assert %{score: 0} == score([title: [_regex: "foo", inverse: true]], %{"title" => "foofoo"})
-      assert %{score: 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "foo"})
+      assert %{score: 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "Foo"})
     end
 
     test "regex binary score" do
