@@ -58,7 +58,7 @@ defmodule MatchEngine.QueryTest do
     ] ==
       preprocess [user: [_or: [name: [_sim: "Arjan"], age: 38]]]
 
-    assert [ {["user"], [_regex: ~r/Arjan/]}] ==
+    assert [ {["user"], [_regex: %Regex{}]}] =
       preprocess [user: [_regex: "Arjan"]]
 
   end

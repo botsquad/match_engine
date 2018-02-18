@@ -46,6 +46,7 @@ defmodule MatchEngineTest do
       assert %{score: 1} == score([title: [_regex: "foo"]], %{"title" => "foo"})
       assert %{score: 0.5} == score([title: [_regex: "foo"]], %{"title" => "foofoo"})
       assert %{score: 2} == score([title: [_regex: "foo", w: 4]], %{"title" => "foofoo"})
+      assert %{:score => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
     end
 
     test "regex binary score" do

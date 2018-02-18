@@ -62,14 +62,14 @@ defmodule MatchEngine.Score do
   end
   defp score_part({field, [{:_regex, %Regex{} = regex} | _] = node}, doc) do
     value = get_value(doc, field) || ""
-    case Regex.run(regex, value) do
-      [result] ->
-      (String.length(result) / String.length(value))
-      |> weigh(node)
+    case Regex.named_captures(regex, value) do
       nil ->
-        0
+        score_map(0)
+      %{"__match__" => match} = all ->
+        (String.length(match) / String.length(value))
+        |> weigh(node)
+        |> score_map(Map.delete(all, "__match__"))
     end
-    |> score_map()
   end
   defp score_part({field, [{:_sim, expected} | _] = node}, doc) when is_binary(expected) do
     case get_value(doc, field) do
