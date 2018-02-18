@@ -4,10 +4,8 @@ defmodule MatchEngine.Scoring do
 
   def score_all(docs, query) do
     docs
-    |> Enum.map(&({score(query, &1), &1}))
-    |> Enum.sort()
-    |> Enum.reverse()
-    |> Enum.map(&(Map.put(elem(&1, 1), :_match, elem(&1, 0))))
+    |> Enum.map(& Map.put(&1, :_match, score(query, &1)))
+    |> Enum.sort_by(&(&1._match.score), &Kernel.>/2)
   end
 
   def filter_all(docs, query) do
