@@ -1,6 +1,6 @@
 defmodule MatchEngine.Query do
 
-  @leaf_operators ~w(_eq _regex _sim _in)a
+  @leaf_operators MatchEngine.Score.leaf_operators
   @logic_operators ~w(_and _or _not)a
 
   def preprocess(q) when is_list(q) do
@@ -16,15 +16,22 @@ defmodule MatchEngine.Query do
     [{op, preprocess(value)} | all]
   end
   defp preprocess_part({op, value}, prefix, all) when op in @logic_operators do
-    ops =
-      value
-      |> Enum.reduce([], &(preprocess_part(&1, prefix, &2))) |> Enum.reverse()
+    ops = value |> Enum.reduce([], &(preprocess_part(&1, prefix, &2))) |> Enum.reverse()
     [{op, ops} | all]
   end
   defp preprocess_part({field, [{op, _}| _] = value}, prefix, all) when op not in @leaf_operators do
+    if is_operator(field) do
+      if Enum.member?(@leaf_operators, field) do
+        raise RuntimeError, "Invalid use of operator: #{field}"
+      end
+      raise RuntimeError, "Invalid operator: #{field}"
+    end
     (value |> Enum.reduce([], &(preprocess_part(&1, prefix ++ [Atom.to_string(field)], &2)))) ++ all
   end
   defp preprocess_part({field, value}, prefix, all) do
+    if is_operator(field) do
+      raise RuntimeError, "Invalid operator: #{field}"
+    end
     [{prefix ++ [Atom.to_string(field)], preprocess_value(value)} | all]
   end
 
@@ -46,4 +53,18 @@ defmodule MatchEngine.Query do
     node
   end
 
+  defp is_operator(op) when op in @logic_operators do
+    true
+  end
+  defp is_operator(op) when op in @leaf_operators do
+    true
+  end
+  defp is_operator(op) do
+    case Atom.to_string(op) do
+      "_" <> _ ->
+        true
+      _ ->
+        false
+    end
+  end
 end

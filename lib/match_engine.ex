@@ -3,10 +3,28 @@ defmodule MatchEngine do
   Documentation for MatchEngine.
   """
 
-  defdelegate score(query, doc), to: MatchEngine.Score
-  defdelegate filter(query, doc), to: MatchEngine.Score
+  alias MatchEngine.{Query, Score, Scoring}
 
-  defdelegate score_all(docs, query), to: MatchEngine.Scoring
-  defdelegate filter_all(docs, query), to: MatchEngine.Scoring
+  def score(query, doc) do
+    query
+    |> Query.preprocess()
+    |> Score.score(doc)
+  end
+
+  def filter(query, doc) do
+    query
+    |> Query.preprocess()
+    |> Score.filter(doc)
+  end
+
+  def score_all(docs, query) do
+    query = Query.preprocess(query)
+    Scoring.score_all(docs, query)
+  end
+
+  def filter_all(docs, query) do
+    query = Query.preprocess(query)
+    Scoring.filter_all(docs, query)
+  end
 
 end

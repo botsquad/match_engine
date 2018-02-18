@@ -62,4 +62,13 @@ defmodule MatchEngine.QueryTest do
       preprocess [user: [_regex: "Arjan"]]
 
   end
+
+  test "unknown leaf operator" do
+    assert_raise RuntimeError, fn -> preprocess([location: [_bla: 1]]) end
+  end
+
+  test "unknown logic operator" do
+    assert_raise RuntimeError, fn -> preprocess([_bla: 1]) end
+  end
+
 end
