@@ -1,6 +1,6 @@
 defmodule MatchEngine.Query do
 
-  @leaf_operators ~w(_eq _regex _sim _in _ne _geo)a
+  @leaf_operators ~w(_eq _regex _sim _in _ne _nin _geo)a
   @logic_operators ~w(_and _or _not)a
 
   def leaf_operators do
@@ -40,9 +40,10 @@ defmodule MatchEngine.Query do
   end
   defp preprocess_part({field, value}, prefix, all) do
     if is_operator(field) do
-      raise RuntimeError, "Invalid operator: #{field}"
+      [{prefix, preprocess_value([{field, value}])} | all]
+    else
+      [{prefix ++ [coerce_string(field)], preprocess_value(value)} | all]
     end
-    [{prefix ++ [coerce_string(field)], preprocess_value(value)} | all]
   end
 
   defp preprocess_value([{op, _val} | _] = node) when op in @leaf_operators do

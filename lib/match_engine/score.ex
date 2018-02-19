@@ -38,6 +38,9 @@ defmodule MatchEngine.Score do
   defp score_part({field, [{:_ne, v} | rest]}, doc) do
     score_part({:_not, [{field, [{:_eq, v} | rest]}]}, doc)
   end
+  defp score_part({field, [{:_nin, v} | rest]}, doc) do
+    score_part({:_not, [{field, [{:_in, v} | rest]}]}, doc)
+  end
   defp score_part({field, [{:_eq, value} | _] = node}, doc) do
     case get_value(doc, field) do
       items when is_list(items) and is_list(value) ->

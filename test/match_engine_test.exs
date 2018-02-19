@@ -96,6 +96,11 @@ defmodule MatchEngineTest do
       assert %{score: 1} == score([title: [_in: ~w(foo bar)]], %{"title" => "foo"})
     end
 
+    test "not in" do
+      assert %{score: 0} == score([title: [_not: [_in: ~w(foo bar)]]], %{"title" => "foo"})
+      assert %{score: 0} == score([title: [_nin: ~w(foo bar)]], %{"title" => "foo"})
+    end
+
     test "geo" do
       doc = %{"location" => %{"lat" => 52.340500999999996, "lon" => 4.8832816}}
       q = [location: [_geo: [lat: 52.340500999999996, lon: 4.8832816]]]

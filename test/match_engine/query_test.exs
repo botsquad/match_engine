@@ -69,6 +69,13 @@ defmodule MatchEngine.QueryTest do
     ] ==
       preprocess [title: [_and: [ [_eq: "Arjan"], [_sim: 38]]]]
 
+    assert [
+      _not: [
+        {["title"], [_in: ~w(foo bar)]}
+      ]
+    ] ==
+      preprocess [title: [_not: [_in: ~w(foo bar)]]]
+
   end
 
   test "map queries" do

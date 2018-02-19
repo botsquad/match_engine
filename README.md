@@ -58,16 +58,17 @@ Scores when the document's value is a member of the given list.
 
     [role: [_in: ["developer", "freelancer"]]]
 
+### `_nin`
+
+Scores when the document's value is *not* a member of the given list.
+
+    [role: [_nin: ["recruiter"]]]
 
 
 ### `_sim`
 
 Normalized string similarity. The max of the Normalised Levenshtein
 distance and Jaro distance.
-
-### `_geo`
-
-Score on the distance of the given location
 
 
 ### `_regex`
