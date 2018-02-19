@@ -111,6 +111,16 @@ defmodule MatchEngineTest do
       assert 130 == div(trunc(d), 1000)
     end
 
+    test "time" do
+      time = DateTime.to_iso8601(DateTime.utc_now())
+      assert %{score: 1} == score([inserted_at: [_time: time]], %{"inserted_at" => time})
+
+      t1 = "2018-02-19T15:29:53.672235Z"
+      t2 = "2018-02-19T15:09:53.672235Z"
+      assert %{score: s} = score([inserted_at: [_time: t1]], %{"inserted_at" => t2})
+      assert 0.3 < s
+    end
+
     test "unknown leaf operator" do
       assert_raise RuntimeError, fn -> score([location: [_bla: 1]], %{}) end
     end

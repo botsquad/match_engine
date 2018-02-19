@@ -113,6 +113,17 @@ distance.
     assert %{score: 1, distance: 0.0} == score(q, doc)
 
 
+### `_time`
+
+Score by an UTC timestamp, relative to the given time.
+
+    t1 = "2018-02-19T15:29:53.672235Z"
+    t2 = "2018-02-19T15:09:53.672235Z"
+    assert %{score: s} = score([inserted_at: [_time: t1]], %{"inserted_at" => t2})
+
+This way, documents can be returned in order of recency.
+
+
 ###  `_and`
 
 Combine matchers, multiplying the score. When one of the matchers

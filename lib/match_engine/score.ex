@@ -66,9 +66,9 @@ defmodule MatchEngine.Score do
       nil ->
         score_map(0)
       %{"__match__" => match} = all ->
-        (String.length(match) / String.length(value))
-        |> weigh(node)
-        |> score_map(Map.delete(all, "__match__"))
+      (String.length(match) / String.length(value))
+      |> weigh(node)
+      |> score_map(Map.delete(all, "__match__"))
     end
   end
   defp score_part({field, [{:_regex, subject}, {:inverse, true} | _] = node}, doc) do
@@ -77,9 +77,9 @@ defmodule MatchEngine.Score do
       nil ->
         score_map(0)
       [match] ->
-        (String.length(match) / String.length(subject))
-        |> weigh(node)
-        |> score_map()
+      (String.length(match) / String.length(subject))
+      |> weigh(node)
+      |> score_map()
     end
   end
   defp score_part({field, [{:_sim, expected} | _] = node}, doc) when is_binary(expected) do
@@ -104,6 +104,20 @@ defmodule MatchEngine.Score do
         log_score(distance, max_distance)
         |> weigh(node)
         |> score_map(%{distance: distance})
+    end
+  end
+  defp score_part({field, [{:_time, time} | _] = node}, doc) do
+    with {:ok, to} <- parse_time(time),
+         {:ok, from} = parse_time(get_value(doc, field)) do
+      max_time = node[:max_time] || 24 * 3600
+      Timex.diff(to, from, :seconds)
+      |> abs()
+      |> log_score(max_time)
+      |> weigh(node)
+      |> score_map()
+    else
+      _ ->
+        score_map(0)
     end
   end
   defp score_part({field, [{op, _} | _]}, _doc) do
@@ -163,6 +177,10 @@ defmodule MatchEngine.Score do
           v2
       end)
     end)
+  end
+
+  defp parse_time(time) do
+    Timex.parse(time, "{ISO:Extended}")
   end
 
   defp coerce_location(value) do

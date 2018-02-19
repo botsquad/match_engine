@@ -22,6 +22,7 @@ defmodule MatchEngine.Mixfile do
   defp deps do
     [
       {:poison, "~> 3.0"},
+      {:timex, "~> 3.1"},
       {:simetric, "~> 0.2.0"},
     ]
   end
