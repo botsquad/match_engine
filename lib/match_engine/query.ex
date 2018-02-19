@@ -7,6 +7,9 @@ defmodule MatchEngine.Query do
     @leaf_operators
   end
 
+  def preprocess(q) when is_map(q) do
+    q |> query_map_to_list() |> preprocess()
+  end
   def preprocess(q) when is_list(q) do
     q
     |> Enum.reduce([], &(preprocess_part(&1, [], &2)))
@@ -32,11 +35,14 @@ defmodule MatchEngine.Query do
     end
     (value |> Enum.reduce([], &(preprocess_part(&1, prefix ++ [Atom.to_string(field)], &2)))) ++ all
   end
+  defp preprocess_part([{op, _val} | _] = node, prefix, all) when op in @leaf_operators do
+    [{prefix, preprocess_value(node)} | all]
+  end
   defp preprocess_part({field, value}, prefix, all) do
     if is_operator(field) do
       raise RuntimeError, "Invalid operator: #{field}"
     end
-    [{prefix ++ [Atom.to_string(field)], preprocess_value(value)} | all]
+    [{prefix ++ [coerce_string(field)], preprocess_value(value)} | all]
   end
 
   defp preprocess_value([{op, _val} | _] = node) when op in @leaf_operators do
@@ -61,6 +67,9 @@ defmodule MatchEngine.Query do
     node
   end
 
+  defp coerce_string(field) when is_binary(field), do: field
+  defp coerce_string(field) when is_atom(field), do: field |> Atom.to_string()
+
   defp is_operator(op) when op in @logic_operators do
     true
   end
@@ -75,4 +84,19 @@ defmodule MatchEngine.Query do
         false
     end
   end
+
+  defp query_map_to_list(list) when is_list(list) do
+    list |> Enum.map(&query_map_to_list/1)
+  end
+  defp query_map_to_list(map) when is_map(map) do
+    Map.to_list(map)
+    |> Enum.sort(fn
+      ({"_" <> _, _}, _) -> true
+      (_, {"_" <> _, _}) -> false
+      ({k1, _}, {k2, _}) -> k1 >= k2
+    end)
+    |> Enum.map(fn({k, v}) -> {String.to_atom(k), query_map_to_list(v)} end)
+  end
+  defp query_map_to_list(value), do: value
+
 end

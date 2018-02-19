@@ -22,4 +22,14 @@ defmodule MatchEngine.ScoringTests do
     assert 1 == m._match.score
   end
 
+  test "score_all (map)" do
+    docs = @data["value"]
+
+    result = docs
+    |> score_all(%{"title" => %{"_eq" => "Amsterdam"}})
+    |> Enum.slice(0..1)
+
+    assert [%{_match: %{score: 1}}, %{_match: %{score: 0}}] = result
+  end
+
 end

@@ -61,6 +61,40 @@ defmodule MatchEngine.QueryTest do
     assert [ {["user"], [_regex: %Regex{}]}] =
       preprocess [user: [_regex: "Arjan"]]
 
+    assert [
+      _and: [
+        {["title"], [_eq: "Arjan"]},
+        {["title"], [_sim: 38]}
+      ]
+    ] ==
+      preprocess [title: [_and: [ [_eq: "Arjan"], [_sim: 38]]]]
+
+  end
+
+  test "map queries" do
+
+    assert [ {["user"], [_eq: "Arjan"]}] ==
+      preprocess %{"user" => "Arjan"}
+
+    assert [ {["user"], [_eq: "Arjan"]}] ==
+      preprocess %{"user" => %{"_eq" => "Arjan"}}
+
+    assert [
+      _or: [
+        {["user", "name"], [_sim: "Arjan"]},
+        {["user", "age"], [_eq: 38]}
+      ]
+    ] ==
+      preprocess %{"user" => %{"_or" => %{"name" => %{"_sim" => "Arjan"}, "age" => 38}}}
+
+    assert [
+      _and: [
+        {["title"], [_eq: "Arjan"]},
+        {["title"], [_sim: 38]}
+      ]
+    ] ==
+      preprocess %{"title" => %{"_and" => [ %{"_eq" => "Arjan"}, %{"_sim" => 38}]}}
+
   end
 
   test "unknown leaf operator" do
