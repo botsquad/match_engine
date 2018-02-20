@@ -1,4 +1,5 @@
 defmodule MatchEngine.Score do
+  @moduledoc false
 
   alias MatchEngine.Geo
   alias MatchEngine.Query

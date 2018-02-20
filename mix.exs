@@ -42,6 +42,7 @@ defmodule MatchEngine.Mixfile do
       {:poison, "~> 3.0"},
       {:timex, "~> 3.1"},
       {:simetric, "~> 0.2.0"},
+      {:ex_doc, "~> 0.12", only: :dev, runtime: false}
     ]
   end
 end

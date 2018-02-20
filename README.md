@@ -3,6 +3,13 @@
 A query language for filtering and scoring of documents, inspired by
 the MongoDB query language and Solr.
 
+The query language consists of nested Elixir "keyword list". Each component of the query consists of a *key* part and a *value* part. The key part is either a logic operator (and/or/not), or a reference to a field, the value part is either a plain value, or a value operator.
+
+When a query is run against a document, where each term is scored
+individually and then summed. (This implies "or").
+
+Example queries
+
 ```
 [title: "hoi"]
 [title: [_eq: "hoi"]]
@@ -11,12 +18,17 @@ the MongoDB query language and Solr.
 [_not: [title: "foo"]]
 ```
 
-Nested objects follow the shape of the data:
+Performing matches in nested objects is also possible; the query simply follows the shape of the data:
 
 ```
 [user: [name: "Arjan"]]
 [_not: [user: [name: "Arjan"]]]
 ```
+
+> Note that this is a different approach for nesting fields than MongoDB has.
+
+
+## Query execution
 
 The queries can be run by calling `MatchEngine.score_all/2` or `MatchEngine.filter_all/2`.
 
@@ -33,14 +45,11 @@ query. This score, including any additional metadata, is returned in a
 `_match` map inside the document.
 
 
-## Query language
 
-The query language consists of a nested Elixir "keyword list".
+## Value operators
 
-A query is a list of term matches, where each term is scored
-individually and then summed. (This implies "or").
-
-## Operators
+*Value operators* work on an individual field. Various operators can
+be used to calculate a score for a given field.
 
 ### `_eq`
 
@@ -57,6 +66,7 @@ Can also be used when the input document contains a list of values for the given
 Scores when the document's value is a member of the given list.
 
     [role: [_in: ["developer", "freelancer"]]]
+
 
 ### `_nin`
 
@@ -123,6 +133,8 @@ Score by an UTC timestamp, relative to the given time.
 
 This way, documents can be returned in order of recency.
 
+
+## Logic operators
 
 ###  `_and`
 

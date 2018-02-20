@@ -1,4 +1,5 @@
 defmodule MatchEngine.Scoring do
+  @moduledoc false
 
   import MatchEngine.Score
 

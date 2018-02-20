@@ -1,4 +1,5 @@
 defmodule MatchEngine.Query do
+  @moduledoc false
 
   @leaf_operators ~w(_eq _regex _sim _in _ne _nin _geo _time)a
   @logic_operators ~w(_and _or _not)a

@@ -1,4 +1,5 @@
 defmodule MatchEngine.Geo do
+  @moduledoc false
 
   @pi_over_180 3.14159265359 / 180.0
   @radius_of_earth_meters 6_371_008.8
