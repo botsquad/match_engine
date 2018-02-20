@@ -1,5 +1,7 @@
 # MatchEngine
 
+[![Build Status](https://travis-ci.org/botsqd/match_engine.svg?branch=master)](https://travis-ci.org/botsqd/match_engine) [![Hex.pm](https://img.shields.io/hexpm/v/match_engine.svg)]()
+
 A query language for filtering and scoring of documents, inspired by
 the MongoDB query language and Solr.
 
