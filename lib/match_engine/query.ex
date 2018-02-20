@@ -57,7 +57,7 @@ defmodule MatchEngine.Query do
     [_eq: node]
   end
 
-  defp preprocess_leaf_op([{:_regex, _}, {:inverse, true} | rest] = node) do
+  defp preprocess_leaf_op([{:_regex, _}, {:inverse, true} | _rest] = node) do
     node
   end
   defp preprocess_leaf_op([{:_regex, re} | rest]) do
