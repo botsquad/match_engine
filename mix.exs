@@ -4,7 +4,7 @@ defmodule MatchEngine.Mixfile do
   def project do
     [
       app: :match_engine,
-      version: "1.0.0",
+      version: "1.1.0",
       elixir: "~> 1.5",
       elixirc_options: [warnings_as_errors: true],
       description: description(),
