@@ -104,7 +104,7 @@ defmodule MatchEngine.Score do
         distance = Geo.distance(coerce_location(location), coerce_location(value))
         log_score(distance, max_distance)
         |> weigh(node)
-        |> score_map(%{distance: distance})
+        |> score_map(%{"distance" => distance})
     end
   end
   defp score_part({field, [{:_time, time} | _] = node}, doc) do
@@ -142,11 +142,11 @@ defmodule MatchEngine.Score do
   defp binary_score(score, true) when score > 0, do: 1
   defp binary_score(score, _), do: score
 
-  defp invert_score(%{score: score} = map) when score == 0 do
-    Map.put(map, :score, 1)
+  defp invert_score(%{"score" => score} = map) when score == 0 do
+    Map.put(map, "score", 1)
   end
-  defp invert_score(%{score: _score} = map) do
-    Map.put(map, :score, 0)
+  defp invert_score(%{"score" => _score} = map) do
+    Map.put(map, "score", 0)
   end
 
   defp log_score(value, _max_value) when value == 0 do
@@ -163,16 +163,16 @@ defmodule MatchEngine.Score do
   end
 
   defp score_map(s) do
-    %{score: s}
+    %{"score" => s}
   end
   defp score_map(s, add) when is_map(add) do
-    Map.put(add, :score, s)
+    Map.put(add, "score", s)
   end
 
   defp score_combine(score_maps, initial, resolver) do
     score_maps
     |> Enum.reduce(score_map(initial), fn(score, overall) ->
-      Map.merge(score, overall, fn(:score, s1, s2) ->
+      Map.merge(score, overall, fn("score", s1, s2) ->
         resolver.(s1, s2)
         (_k, _v1, v2) ->
           v2

@@ -12,14 +12,14 @@ defmodule MatchEngine.ScoringTests do
     |> score_all([title: "Amsterdam"])
     |> Enum.slice(0..1)
 
-    assert [%{_match: %{score: 1}}, %{_match: %{score: 0}}] = result
+    assert [%{"_match" => %{"score" => 1}}, %{"_match" => %{"score" => 0}}] = result
   end
 
   test "filter_all" do
     docs = @data["value"]
 
     assert [m] = filter_all(docs, [title: "Amsterdam", key: "GM0363    "])
-    assert 1 == m._match.score
+    assert 1 == m["_match"]["score"]
   end
 
   test "score_all (map)" do
@@ -29,7 +29,17 @@ defmodule MatchEngine.ScoringTests do
     |> score_all(%{"title" => %{"_eq" => "Amsterdam"}})
     |> Enum.slice(0..1)
 
-    assert [%{_match: %{score: 1}}, %{_match: %{score: 0}}] = result
+    assert [%{"_match" => %{"score" => 1}}, %{"_match" => %{"score" => 0}}] = result
+  end
+
+  test "score_all (map), weighted" do
+    docs = @data["value"]
+
+    result = docs
+    |> score_all(%{"title" => %{"_eq" => "Amsterdam", "w" => 2}})
+    |> Enum.slice(0..1)
+
+    assert [%{"_match" => %{"score" => 2}}, %{"_match" => %{"score" => 0}}] = result
   end
 
   test "score_all geo w/ maps" do
@@ -44,8 +54,8 @@ defmodule MatchEngine.ScoringTests do
       |> score_all(q)
       |> hd()
 
-    assert first[:_match].score > 0
-    assert first[:_match].distance > 0
+    assert first["_match"]["score"] > 0
+    assert first["_match"]["distance"] > 0
   end
 
 end

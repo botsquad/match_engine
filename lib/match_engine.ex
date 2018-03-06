@@ -59,7 +59,7 @@ defmodule MatchEngine do
   The query phase runs the preprocessed query for each document in the
   list, by calculating the score for the given document, given the
   query. This score, including any additional metadata, is returned in a
-  `_match` map inside the document.
+  `"_match"` map inside the document.
 
 
 
@@ -113,9 +113,9 @@ defmodule MatchEngine do
 
   ```
   # regex matches entire string, 100% score
-  assert %{score: 1} == score([title: [_regex: "foo"]], %{"title" => "foo"})
+  assert %{"score" => 1} == score([title: [_regex: "foo"]], %{"title" => "foo"})
   # regex matches with a capture called 'name'. It is boosted by weight.
-  assert %{:score => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
+  assert %{"score" => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
   ```
 
   The regex match can also be inversed, where the document value is
@@ -123,7 +123,7 @@ defmodule MatchEngine do
   the string to be matched. (No captures are supported in this case).
 
   ```
-  assert %{score: 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "foo"})
+  assert %{"score" => 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "foo"})
   ```
 
 
@@ -148,7 +148,7 @@ defmodule MatchEngine do
   ```
   doc = %{"location" => %{"lat" => 52.340500999999996, "lon" => 4.8832816}}
   q = [location: [_geo: [lat: 52.340500999999996, lon: 4.8832816]]]
-  assert %{score: 1, distance: 0.0} == score(q, doc)
+  assert %{"score" => 1, "distance" => 0.0} == score(q, doc)
   ```
 
   ### `_time`
@@ -158,7 +158,7 @@ defmodule MatchEngine do
   ```
   t1 = "2018-02-19T15:29:53.672235Z"
   t2 = "2018-02-19T15:09:53.672235Z"
-  assert %{score: s} = score([inserted_at: [_time: t1]], %{"inserted_at" => t2})
+  assert %{"score" => s} = score([inserted_at: [_time: t1]], %{"inserted_at" => t2})
   ```
 
   This way, documents can be returned in order of recency.
