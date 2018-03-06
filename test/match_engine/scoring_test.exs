@@ -32,4 +32,20 @@ defmodule MatchEngine.ScoringTests do
     assert [%{_match: %{score: 1}}, %{_match: %{score: 0}}] = result
   end
 
+  test "score_all geo w/ maps" do
+	  docs = [%{"city" => "amsterdam",
+              "location" => %{"lat" => 52.363711, "lon" => 4.882609}},
+            %{"city" => "new york",
+              "location" => %{"lat" => 40.690902, "lon" => -73.922038}}]
+    q = %{"location" => %{"_geo" => %{"lat" => 52.3303715, "lon" => 4.8813892}}}
+
+    first =
+      docs
+      |> score_all(q)
+      |> hd()
+
+    assert first[:_match].score > 0
+    assert first[:_match].distance > 0
+  end
+
 end
