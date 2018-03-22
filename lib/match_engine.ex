@@ -58,9 +58,11 @@ defmodule MatchEngine do
 
   The query phase runs the preprocessed query for each document in the
   list, by calculating the score for the given document, given the
-  query. This score, including any additional metadata, is returned in a
-  `"_match"` map inside the document.
-
+  query. When using filter_all/2, documents with a zero score are
+  removed from the input list.  When using score_all, the list is
+  sorted on score, descending, and this score, including any
+  additional metadata, is returned in a `"_match"` map inside the
+  document.
 
 
   ## Value operators
@@ -282,10 +284,6 @@ defmodule MatchEngine do
 
   Only the documents that have a positive (greater than 0) score are
   returned. The document order is preserved, no sorting on score is done.
-
-  The document contains a `_match` key which contains the `score`
-  attribute. Some operators, e.g. `_geo`, add additional information
-  to this match map, for instance, the geographical distance.
   """
   @spec score_all([doc()], query()) :: [doc_with_match()]
   def filter_all(docs, query) do

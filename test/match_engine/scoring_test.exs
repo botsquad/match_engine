@@ -18,8 +18,8 @@ defmodule MatchEngine.ScoringTests do
   test "filter_all" do
     docs = @data["value"]
 
-    assert [m] = filter_all(docs, [title: "Amsterdam", key: "GM0363    "])
-    assert 1 == m["_match"]["score"]
+    assert [doc = %{"title" => "Amsterdam"}] = filter_all(docs, [title: "Amsterdam", key: "GM0363    "])
+    refute doc["_match"]
   end
 
   test "score_all (map)" do
