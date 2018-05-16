@@ -22,6 +22,11 @@ defmodule MatchEngine.ScoringTests do
     refute doc["_match"]
   end
 
+  test "filter_all on non-map doc" do
+    docs = ~w(a b c d e f g)
+    assert ~w(a b c d) = filter_all(docs, [_lt: "e"])
+  end
+
   test "score_all (map)" do
     docs = @data["value"]
 

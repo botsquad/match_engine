@@ -13,6 +13,11 @@ defmodule MatchEngineTest do
       assert %{"score" => 2} == score([title: "foo", age: 34], %{"title" => "foo", "age" => 34})
     end
 
+    test "score on non-map 'document'" do
+      assert %{"score" => 1} == score([_eq: "foo"], "foo")
+      assert %{"score" => 0} == score([_eq: "foo"], "xfoo")
+    end
+
     test "deep fields" do
       assert %{"score" => 1} == score([user: [title: "foo"]], %{"user" => %{"title" => "foo"}})
     end
@@ -23,6 +28,24 @@ defmodule MatchEngineTest do
 
     test "ne" do
       assert %{"score" => 0} == score([title: [_ne: "foo"]], %{"title" => "foo"})
+    end
+
+    test "equality operators" do
+      assert %{"score" => 0} == score([title: [_gt: 10]], %{"title" => 9})
+      assert %{"score" => 0} == score([title: [_gt: 10]], %{"title" => 10})
+      assert %{"score" => 1} == score([title: [_gt: 10]], %{"title" => 11})
+
+      assert %{"score" => 1} == score([title: [_lte: 10]], %{"title" => 9})
+      assert %{"score" => 1} == score([title: [_lte: 10]], %{"title" => 10})
+      assert %{"score" => 0} == score([title: [_lte: 10]], %{"title" => 11})
+
+      assert %{"score" => 1} == score([title: [_lt: 10]], %{"title" => 9})
+      assert %{"score" => 0} == score([title: [_lt: 10]], %{"title" => 10})
+      assert %{"score" => 0} == score([title: [_lt: 10]], %{"title" => 11})
+
+      assert %{"score" => 0} == score([title: [_gte: 10]], %{"title" => 9})
+      assert %{"score" => 1} == score([title: [_gte: 10]], %{"title" => 10})
+      assert %{"score" => 1} == score([title: [_gte: 10]], %{"title" => 11})
     end
 
     test "eq w/ array in doc" do

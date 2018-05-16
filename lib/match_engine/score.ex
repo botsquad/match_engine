@@ -56,6 +56,15 @@ defmodule MatchEngine.Score do
     |> weigh(node)
     |> score_map()
   end
+  @compare_operators %{_lt: :<, _lte: :<=, _gt: :>, _gte: :>=}
+  @compare_operator_keys Map.keys(@compare_operators)
+  defp score_part({field, [{op, value} | _] = node}, doc) when op in @compare_operator_keys do
+    value2 = get_value(doc, field)
+    apply(Kernel, @compare_operators[op], [value2, value])
+    |> truth_score()
+    |> weigh(node)
+    |> score_map()
+  end
   defp score_part({field, [{:_in, list} | _] = node}, doc) do
     truth_score(Enum.member?(list, get_value(doc, field)))
     |> weigh(node)
@@ -132,6 +141,9 @@ defmodule MatchEngine.Score do
     binary_score(score, node[:b]) * (node[:w] || 1)
   end
 
+  defp get_value(doc, []) do
+    doc
+  end
   defp get_value(doc, field) do
     get_in(doc, field)
   end
