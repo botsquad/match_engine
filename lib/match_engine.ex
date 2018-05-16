@@ -79,7 +79,21 @@ defmodule MatchEngine do
   [title: [_eq: "hello"]]
   ```
 
-  Can also be used when the input document contains a list of values for the given field.
+  ### `_ne`
+
+  Scores on the *in*equality of the argument. ("Not equals")
+
+  ```
+  [title: [_ne: "hello"]]
+  ```
+
+  ### `_lt`, `_gt`, `_lte`, `_gte`
+
+  Scores on using the comparison operators <, >, <= and >=.
+
+  ```
+  [age: [_gt: 18]]
+  ```
 
 
   ### `_in`
