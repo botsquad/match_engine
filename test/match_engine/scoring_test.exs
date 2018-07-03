@@ -48,7 +48,7 @@ defmodule MatchEngine.ScoringTests do
   end
 
   test "score_all geo w/ maps" do
-	  docs = [%{"city" => "amsterdam",
+    docs = [%{"city" => "amsterdam",
               "location" => %{"lat" => 52.363711, "lon" => 4.882609}},
             %{"city" => "new york",
               "location" => %{"lat" => 40.690902, "lon" => -73.922038}}]
@@ -61,6 +61,31 @@ defmodule MatchEngine.ScoringTests do
 
     assert first["_match"]["score"] > 0
     assert first["_match"]["distance"] > 0
+  end
+
+  test "score_all geo, invalid locations" do
+    docs = [
+      %{"city" => "amsterdam",
+        "location" => %{"lat" => 52.363711, "lon" => 4.882609}},
+      %{"city" => "amsterdam2",
+        "location" => "52.393711,4.882609"},
+      %{"city" => "new york",
+        "location" => %{"lat" => 40.690902, "lon" => -73.922038}},
+      %{"city" => "error",
+        "location" => "error"},
+    ]
+    q = %{"location" => %{"_geo" => %{"lat" => 52.3303715, "lon" => 4.8813892}}}
+
+    scored = docs |> score_all(q)
+
+    first = List.first(scored)
+
+    assert first["_match"]["score"] > 0
+    assert first["_match"]["distance"] > 0
+
+    error = Enum.find(scored, & &1["city"] == "error")
+    assert error["_match"]["score"] == 0
+    assert error["_match"]["distance"] == nil # no distance for erroneous lat/lng pairs
   end
 
 end

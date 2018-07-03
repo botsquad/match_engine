@@ -109,11 +109,16 @@ defmodule MatchEngine.Score do
       nil ->
         score_map(0)
       value ->
-        max_distance = node[:max_distance] || 100 * 1000
-        distance = Geo.distance(coerce_location(location), coerce_location(value))
-        log_score(distance, max_distance)
-        |> weigh(node)
-        |> score_map(%{"distance" => distance})
+        case {Geo.coerce_location(location), Geo.coerce_location(value)} do
+          {{_, _} = a, {_, _} = b} ->
+            max_distance = node[:max_distance] || 100 * 1000
+            distance = Geo.distance(a, b)
+            log_score(distance, max_distance)
+            |> weigh(node)
+            |> score_map(%{"distance" => distance})
+          {_, _} ->
+            score_map(0)
+        end
     end
   end
   defp score_part({field, [{:_time, time} | _] = node}, doc) do
@@ -194,23 +199,6 @@ defmodule MatchEngine.Score do
 
   defp parse_time(time) do
     Timex.parse(time, "{ISO:Extended}")
-  end
-
-  defp coerce_location(value) do
-    case value do
-      [lon, lat] when is_number(lon) and is_number(lat) ->
-        {lon, lat}
-      [lon: lon, lat: lat] when is_number(lon) and is_number(lat) ->
-        {lon, lat}
-      [lat: lat, lon: lon] when is_number(lon) and is_number(lat) ->
-        {lon, lat}
-      %{lat: lat, lon: lon} when is_number(lon) and is_number(lat) ->
-        {lon, lat}
-      %{"lat" => lat, "lon" => lon} when is_number(lon) and is_number(lat) ->
-        {lon, lat}
-      _ ->
-        raise RuntimeError, "Invalid geo location: #{inspect value}"
-    end
   end
 
 end

@@ -21,4 +21,33 @@ defmodule MatchEngine.Geo do
     2 * :math.atan2(:math.sqrt(s), :math.sqrt(1 - s)) * @radius_of_earth_meters
   end
 
+  @spec coerce_location(any()) :: {lon::number(), lat::number()} | :error
+  def coerce_location(value) do
+    case value do
+      [lon, lat] when is_number(lon) and is_number(lat) ->
+        {lon, lat}
+      [lon: lon, lat: lat] when is_number(lon) and is_number(lat) ->
+        {lon, lat}
+      [lat: lat, lon: lon] when is_number(lon) and is_number(lat) ->
+        {lon, lat}
+      %{lat: lat, lon: lon} when is_number(lon) and is_number(lat) ->
+        {lon, lat}
+      %{"lat" => lat, "lon" => lon} when is_number(lon) and is_number(lat) ->
+        {lon, lat}
+      [{_, _} | _] = v ->
+        coerce_location([v[:lon], v[:lat]])
+      str when is_binary(str) ->
+        with [latstr, lonstr] <- :binary.split(str, ","),
+             {lat, ""} <- Float.parse(latstr),
+             {lon, ""} <- Float.parse(lonstr) do
+          {lon, lat}
+        else
+          _ ->
+            :error
+        end
+      _ ->
+        :error
+    end
+  end
+
 end
