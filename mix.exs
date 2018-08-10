@@ -4,15 +4,15 @@ defmodule MatchEngine.Mixfile do
   def project do
     [
       app: :match_engine,
-      version: "1.4.0",
+      version: File.read!("VERSION"),
       elixir: "~> 1.5",
       elixirc_options: [warnings_as_errors: true],
       description: description(),
       package: package(),
       source_url: "https://github.com/botsqd/match_engine",
       homepage_url: "https://github.com/botsqd/match_engine",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
   end
@@ -22,11 +22,12 @@ defmodule MatchEngine.Mixfile do
   end
 
   defp package do
-    %{files: ["lib", "mix.exs",
-              "*.md", "LICENSE"],
+    %{
+      files: ["lib", "mix.exs", "*.md", "LICENSE"],
       maintainers: ["Arjan Scherpenisse"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/botsqd/match_engine"}}
+      links: %{"GitHub" => "https://github.com/botsqd/match_engine"}
+    }
   end
 
   # Run "mix help compile.app" to learn about applications.
