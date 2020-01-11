@@ -55,10 +55,17 @@ defmodule MatchEngineTest do
     test "set overlap (eq w/ arrays on both side)" do
       assert %{"score" => 1} == score([title: [_eq: ["foo"]]], %{"title" => ["foo"]})
       assert %{"score" => 0} == score([title: [_eq: ["foo"]]], %{"title" => ["bar"]})
-      assert %{"score" => 1} == score([title: [_eq: ["foo", "bar"]]], %{"title" => ["foo", "bar"]})
+
+      assert %{"score" => 1} ==
+               score([title: [_eq: ["foo", "bar"]]], %{"title" => ["foo", "bar"]})
+
       assert %{"score" => 0.5} == score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar"]})
-      assert %{"score" => 0.25} == score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
-      assert %{"score" => 0.5} == score([title: [_eq: ["a", "foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
+
+      assert %{"score" => 0.25} ==
+               score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
+
+      assert %{"score" => 0.5} ==
+               score([title: [_eq: ["a", "foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
     end
 
     test "weight" do
@@ -69,13 +76,20 @@ defmodule MatchEngineTest do
       assert %{"score" => 1} == score([title: [_regex: "foo"]], %{"title" => "foo"})
       assert %{"score" => 0.5} == score([title: [_regex: "foo"]], %{"title" => "foofoo"})
       assert %{"score" => 2} == score([title: [_regex: "foo", w: 4]], %{"title" => "foofoo"})
-      assert %{"score" => 1.6, "name" => "food"} == score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
+
+      assert %{"score" => 1.6, "name" => "food"} ==
+               score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
     end
 
     test "regex - inverse" do
-      assert %{"score" => 1} == score([title: [_regex: "foo", inverse: true]], %{"title" => "foo"})
-      assert %{"score" => 0} == score([title: [_regex: "foo", inverse: true]], %{"title" => "foofoo"})
-      assert %{"score" => 0.5} == score([title: [_regex: "foobar", inverse: true]], %{"title" => "Foo"})
+      assert %{"score" => 1} ==
+               score([title: [_regex: "foo", inverse: true]], %{"title" => "foo"})
+
+      assert %{"score" => 0} ==
+               score([title: [_regex: "foo", inverse: true]], %{"title" => "foofoo"})
+
+      assert %{"score" => 0.5} ==
+               score([title: [_regex: "foobar", inverse: true]], %{"title" => "Foo"})
     end
 
     test "regex binary score" do
@@ -91,19 +105,34 @@ defmodule MatchEngineTest do
 
     test "sim w/ array document" do
       assert %{"score" => 1} == score([title: [_sim: "foo"]], %{"title" => ["foo", "bar"]})
-      assert %{"score" => 1} == score([learn: [sentences: [_sim: "foo"]]], %{"learn" => %{"sentences" => ["foo", "bar"]}})
+
+      assert %{"score" => 1} ==
+               score([learn: [sentences: [_sim: "foo"]]], %{
+                 "learn" => %{"sentences" => ["foo", "bar"]}
+               })
     end
 
     test "and" do
-      assert %{"score" => s} = score([_and: [title: [_sim: "foo"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+      assert %{"score" => s} =
+               score([_and: [title: [_sim: "foo"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+
       assert 0.3 < s
-      assert %{"score" => 0.0} == score([_and: [title: [_sim: "xxxx"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+
+      assert %{"score" => 0.0} ==
+               score([_and: [title: [_sim: "xxxx"], title: [_sim: "bar"]]], %{
+                 "title" => "foo bar"
+               })
     end
 
     test "or" do
-      assert %{"score" => s} = score([_or: [title: [_sim: "foo"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+      assert %{"score" => s} =
+               score([_or: [title: [_sim: "foo"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+
       assert 0.3 < s
-      assert %{"score" => s} = score([_or: [title: [_sim: "xxxx"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+
+      assert %{"score" => s} =
+               score([_or: [title: [_sim: "xxxx"], title: [_sim: "bar"]]], %{"title" => "foo bar"})
+
       assert 0.3 < s
     end
 
@@ -147,12 +176,9 @@ defmodule MatchEngineTest do
     test "unknown leaf operator" do
       assert_raise RuntimeError, fn -> score([location: [_bla: 1]], %{}) end
     end
-
   end
 
-
   describe "filter" do
-
     test "basic" do
       assert %{"score" => 0} = filter([], %{})
       # basic equals
@@ -175,5 +201,4 @@ defmodule MatchEngineTest do
       assert %{"score" => 0} = filter([title: [_eq: "xx"]], %{"title" => ["foo", "bar"]})
     end
   end
-
 end

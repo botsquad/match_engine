@@ -244,7 +244,8 @@ defmodule MatchEngine do
   @type query() :: [operator_pair] | map()
   @type operator_pair() :: {operator(), operator_arg()}
   @type operator_arg() :: any()
-  @type operator() :: :_not | :_and | :_or | :_eq | :_ne | :_in | :_nin | :_sim | :_regex | :_geo | :_time
+  @type operator() ::
+          :_not | :_and | :_or | :_eq | :_ne | :_in | :_nin | :_sim | :_regex | :_geo | :_time
 
   @type score_match() :: map()
   @type doc() :: map()
@@ -304,5 +305,4 @@ defmodule MatchEngine do
     query = Query.preprocess(query)
     Scoring.filter_all(docs, query)
   end
-
 end

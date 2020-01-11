@@ -13,10 +13,9 @@ defmodule MatchEngine.GeoTest do
     loc = {2, 1}
     assert ^loc = Geo.coerce_location([2, 1])
     assert ^loc = Geo.coerce_location(%{lat: 1, lon: 2})
-    assert ^loc = Geo.coerce_location([lat: 1, lon: 2])
+    assert ^loc = Geo.coerce_location(lat: 1, lon: 2)
     assert ^loc = Geo.coerce_location(%{"lat" => 1, "lon" => 2})
 
     assert :error = Geo.coerce_location("foo")
   end
-
 end
