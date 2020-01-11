@@ -77,6 +77,8 @@ defmodule MatchEngineTest do
       assert %{"score" => 0.5} == score([title: [_regex: "foo"]], %{"title" => "foofoo"})
       assert %{"score" => 2} == score([title: [_regex: "foo", w: 4]], %{"title" => "foofoo"})
 
+      assert %{"score" => 0} == score([title: [_regex: "", w: 4]], %{"title" => "sdf"})
+
       assert %{"score" => 1.6, "name" => "food"} ==
                score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
     end
@@ -84,6 +86,9 @@ defmodule MatchEngineTest do
     test "regex - inverse" do
       assert %{"score" => 1} ==
                score([title: [_regex: "foo", inverse: true]], %{"title" => "foo"})
+
+      assert %{"score" => 0} ==
+               score([title: [_regex: "", inverse: true]], %{"title" => ""})
 
       assert %{"score" => 0} ==
                score([title: [_regex: "foo", inverse: true]], %{"title" => "foofoo"})
@@ -97,6 +102,8 @@ defmodule MatchEngineTest do
     end
 
     test "sim" do
+      assert %{"score" => 0} == score([title: [_sim: ""]], %{"title" => ""})
+
       assert %{"score" => 1} == score([title: [_sim: "foo"]], %{"title" => "foo"})
       assert %{"score" => s} = score([title: [_sim: "foo"]], %{"title" => "food"})
       assert 0.9 < s
@@ -199,6 +206,8 @@ defmodule MatchEngineTest do
     test "eq w/ array in doc" do
       assert %{"score" => 1} = filter([title: [_eq: "foo"]], %{"title" => ["foo", "bar"]})
       assert %{"score" => 0} = filter([title: [_eq: "xx"]], %{"title" => ["foo", "bar"]})
+
+      assert %{"score" => 0} = filter([title: [_eq: []]], %{"title" => []})
     end
   end
 end

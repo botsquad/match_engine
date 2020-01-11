@@ -50,6 +50,9 @@ defmodule MatchEngine.Score do
 
   defp score_part({field, [{:_eq, value} | _] = node}, doc) do
     case get_value(doc, field) do
+      [] ->
+        0
+
       items when is_list(items) and is_list(value) ->
         1 - length(items -- value) / max(length(value), length(items))
 
@@ -90,6 +93,9 @@ defmodule MatchEngine.Score do
       nil ->
         score_map(0)
 
+      %{"__match__" => ""} ->
+        score_map(0)
+
       %{"__match__" => match} = all ->
         (String.length(match) / String.length(value))
         |> weigh(node)
@@ -102,6 +108,9 @@ defmodule MatchEngine.Score do
 
     case Regex.compile!(value, "i") |> Regex.run(subject) do
       nil ->
+        score_map(0)
+
+      [""] ->
         score_map(0)
 
       [match] ->
@@ -204,6 +213,8 @@ defmodule MatchEngine.Score do
   defp log_score(value, max_value) do
     max(1 - :math.log(1 + value) / :math.log(1 + max_value), 0)
   end
+
+  defp string_sim("", ""), do: 0
 
   defp string_sim(a, b) do
     d1 = 1 - Simetric.Levenshtein.compare(a, b) / max(String.length(a), String.length(b))
