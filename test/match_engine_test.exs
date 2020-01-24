@@ -83,6 +83,10 @@ defmodule MatchEngineTest do
                score([title: [_regex: "(?P<name>foo[dl])", w: 4]], %{"title" => "foodtrucks"})
     end
 
+    test "regex - with unicode" do
+      assert %{"score" => 1} == score([title: [_regex: "hoi \\w+"]], %{"title" => "hoi áép"})
+    end
+
     test "regex - inverse" do
       assert %{"score" => 1} ==
                score([title: [_regex: "foo", inverse: true]], %{"title" => "foo"})
@@ -95,6 +99,11 @@ defmodule MatchEngineTest do
 
       assert %{"score" => 0.5} ==
                score([title: [_regex: "foobar", inverse: true]], %{"title" => "Foo"})
+    end
+
+    test "regex - inverse w/ unicode" do
+      assert %{"score" => 1.0} ==
+               score([title: [_regex: "foobár", inverse: true]], %{"title" => "foo\\w+"})
     end
 
     test "regex binary score" do
