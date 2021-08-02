@@ -20,6 +20,7 @@ defmodule MatchEngineTest do
 
     test "deep fields" do
       assert %{"score" => 1} == score([user: [title: "foo"]], %{"user" => %{"title" => "foo"}})
+      assert %{"score" => 1} == score([user: [title: "foo", age: 34]], %{"user" => %{"title" => "foo", age: 34}})
     end
 
     test "eq" do
@@ -50,6 +51,12 @@ defmodule MatchEngineTest do
 
     test "eq w/ array in doc" do
       assert %{"score" => 1} == score([title: [_eq: "foo"]], %{"title" => ["foo", "bar"]})
+    end
+
+    test "eq w/ array in match" do
+      assert %{"score" => 1} == score([title: [_eq: ["foo"]]], %{"title" => "The foo bar"})
+      assert %{"score" => 0.5} == score([title: [_eq: ["fool", "bar"]]], %{"title" => "The foo bar"})
+      assert %{"score" => 0} == score([title: [_eq: ["foo", "bar"]]], %{"title" => "The fool bear"})
     end
 
     test "set overlap (eq w/ arrays on both side)" do
@@ -201,6 +208,7 @@ defmodule MatchEngineTest do
 
     test "eq" do
       assert %{"score" => 1} = filter([title: [_eq: "foo"]], %{"title" => "foo"})
+      assert %{"score" => 0.5} = filter([title: [_eq: ["foo", "bar"]]], %{"title" => "foo"})
     end
 
     test "eq w/ array in doc" do

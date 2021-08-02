@@ -53,6 +53,10 @@ defmodule MatchEngine.Score do
       [] ->
         0
 
+      str when is_binary(str) and is_list(value) ->
+        (length(value) - length(value -- String.split(str))) / length(value)
+        # truth_score(Enum.any?(value, fn x -> x in String.split(str) end))
+
       items when is_list(items) and is_list(value) ->
         1 - length(items -- value) / max(length(value), length(items))
 
