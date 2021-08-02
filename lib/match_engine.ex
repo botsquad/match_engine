@@ -104,7 +104,6 @@ defmodule MatchEngine do
   [role: [_in: ["developer", "freelancer"]]]
   ```
 
-
   ### `_nin`
 
   Scores when the document's value is *not* a member of the given list.
@@ -234,7 +233,7 @@ defmodule MatchEngine do
 
   [title: [_eq: "Pete", w: 5], summary: [_sim: "hello", w: 2]]
   # can also be written as:
-  %{"title" => %{"_eq" => "Pete", "w" => 5}, "summary" => %{"_sim" => "hello", "w" => w}}
+  %{"title" => %{"_eq" => "Pete", "w" => 5}, "summary" => %{"_sim" => "hello", "w" => 2}}
   ```
 
   """
@@ -270,7 +269,7 @@ defmodule MatchEngine do
   Top-level query operators are treated as `and` clauses.  The return
   value includes `score` attribute which contains the actual score.
   """
-  @spec score(query(), doc()) :: score_match()
+  @spec filter(query(), doc()) :: score_match()
   def filter(query, doc) do
     query
     |> Query.preprocess()
@@ -300,7 +299,7 @@ defmodule MatchEngine do
   Only the documents that have a positive (greater than 0) score are
   returned. The document order is preserved, no sorting on score is done.
   """
-  @spec score_all([doc()], query()) :: [doc_with_match()]
+  @spec filter_all([doc()], query()) :: [doc_with_match()]
   def filter_all(docs, query) do
     query = Query.preprocess(query)
     Scoring.filter_all(docs, query)
