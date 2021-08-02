@@ -44,31 +44,57 @@ defmodule MatchEngine.Score do
     score_part({:_not, [{field, [{:_eq, v} | rest]}]}, doc)
   end
 
+  defp score_part({field, [{:_hasnt, v} | rest]}, doc) do
+    score_part({:_not, [{field, [{:_has, v} | rest]}]}, doc)
+  end
+
   defp score_part({field, [{:_nin, v} | rest]}, doc) do
     score_part({:_not, [{field, [{:_in, v} | rest]}]}, doc)
   end
 
-  defp score_part({field, [{:_eq, value} | _] = node}, doc) do
+  defp score_part({field, [{:_eq, expected} | rest]}, doc) when is_list(expected) do
+    score_part({field, [{:_has, expected} | rest]}, doc)
+  end
+
+  defp score_part({field, [{:_eq, expected} | _] = node}, doc) do
     case get_value(doc, field) do
-      [] ->
-        0
-
-      str when is_binary(str) and is_list(value) ->
-        (length(value) - length(value -- String.split(str))) / length(value)
-        # truth_score(Enum.any?(value, fn x -> x in String.split(str) end))
-
-      items when is_list(items) and is_list(value) ->
-        1 - length(items -- value) / max(length(value), length(items))
-
       items when is_list(items) ->
-        truth_score(Enum.member?(items, value))
+        truth_score(Enum.member?(items, expected))
 
-      ^value ->
+      ^expected ->
         1
 
       _ ->
         0
     end
+    |> weigh(node)
+    |> score_map()
+  end
+
+  defp score_part({field, [{:_has, expected} | rest]}, doc) when is_binary(expected) do
+    score_part({field, [{:_has, [expected]} | rest]}, doc)
+  end
+
+  defp score_part({field, [{:_has, expected} | _] = node}, doc) when is_list(expected) do
+    case get_value(doc, field) do
+      [] ->
+        0
+
+      str when is_binary(str) ->
+        (length(expected) - length(expected -- String.split(str))) / length(expected)
+
+      items when is_list(items) ->
+        (length(expected) - length(expected -- items)) / length(expected)
+
+      _ ->
+        0
+    end
+    |> weigh(node)
+    |> score_map()
+  end
+
+  defp score_part({field, [{:_in, list} | _] = node}, doc) do
+    truth_score(Enum.member?(list, get_value(doc, field)))
     |> weigh(node)
     |> score_map()
   end
@@ -80,12 +106,6 @@ defmodule MatchEngine.Score do
 
     apply(Kernel, @compare_operators[op], [value2, value])
     |> truth_score()
-    |> weigh(node)
-    |> score_map()
-  end
-
-  defp score_part({field, [{:_in, list} | _] = node}, doc) do
-    truth_score(Enum.member?(list, get_value(doc, field)))
     |> weigh(node)
     |> score_map()
   end

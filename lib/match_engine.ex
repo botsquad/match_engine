@@ -87,14 +87,23 @@ defmodule MatchEngine do
   [title: [_ne: "hello"]]
   ```
 
-  ### `_lt`, `_gt`, `_lte`, `_gte`
+  ### `_has`
 
-  Scores on using the comparison operators <, >, <= and >=.
+  Scores when the document's value is a member of the given list.
 
   ```
-  [age: [_gt: 18]]
+  [role: [_in: ["developer", "freelancer"]]]
   ```
 
+  ### `_hasnt`
+
+  Scores when the document's value contains a member of the given list or contains the given word or words
+
+  ```
+  [tag: [_has: ["production"]]]
+  [title: [_has: "The"]]
+  [title: [_has: ["The", "title"]]]
+  ```
 
   ### `_in`
 
@@ -112,6 +121,13 @@ defmodule MatchEngine do
   [role: [_nin: ["recruiter"]]]
   ```
 
+  ### `_lt`, `_gt`, `_lte`, `_gte`
+
+  Scores on using the comparison operators <, >, <= and >=.
+
+  ```
+  [age: [_gt: 18]]
+  ```
 
   ### `_sim`
 
@@ -244,7 +260,7 @@ defmodule MatchEngine do
   @type operator_pair() :: {operator(), operator_arg()}
   @type operator_arg() :: any()
   @type operator() ::
-          :_not | :_and | :_or | :_eq | :_ne | :_in | :_nin | :_sim | :_regex | :_geo | :_time
+          :_not | :_and | :_or | :_eq | :_ne | :_in | :_nin | :_sim | :_regex | :_geo | :_time | :_has | :_hasnt
 
   @type score_match() :: map()
   @type doc() :: map()

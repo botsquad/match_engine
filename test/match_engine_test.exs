@@ -31,6 +31,36 @@ defmodule MatchEngineTest do
       assert %{"score" => 0} == score([title: [_ne: "foo"]], %{"title" => "foo"})
     end
 
+    test "eq w/ array in doc" do
+      assert %{"score" => 1} == score([title: [_eq: "foo"]], %{"title" => ["foo", "bar"]})
+    end
+
+    test "eq w/ array in expected" do
+      assert %{"score" => 1} == score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar"]})
+    end
+
+    test "has" do
+      assert %{"score" => 1} == score([title: [_has: ["foo"]]], %{"title" => ["foo"]})
+      assert %{"score" => 0} == score([title: [_has: ["foo"]]], %{"title" => ["bar"]})
+      assert %{"score" => 1} == score([title: [_has: ["foo"]]], %{"title" => ["foo", "bar"]})
+      assert %{"score" => 1} ==
+               score([title: [_has: ["foo", "bar"]]], %{"title" => ["foo", "bar"]})
+      assert %{"score" => 0.5} ==
+               score([title: [_has: ["foo", "xxx"]]], %{"title" => ["foo", "bar", "a", "b"]})
+    end
+
+    test "has words" do
+      assert %{"score" => 1}   == score([title: [_has: "foo"]], %{"title" => "The foo bar"})
+      assert %{"score" => 1}   == score([title: [_has: ["foo"]]], %{"title" => "The foo bar"})
+      assert %{"score" => 0.5} == score([title: [_has: ["foo", "xxx"]]], %{"title" => "The foo bar"})
+      assert %{"score" => 0}   == score([title: [_has: ["foo", "bar"]]], %{"title" => "The car drives"})
+    end
+
+    test "hasnt" do
+      assert %{"score" => 0} == score([title: [_hasnt: ["foo"]]], %{"title" => ["foo"]})
+      assert %{"score" => 1}   == score([title: [_hasnt: "xxx"]], %{"title" => "The foo bar"})
+    end
+
     test "equality operators" do
       assert %{"score" => 0} == score([title: [_gt: 10]], %{"title" => 9})
       assert %{"score" => 0} == score([title: [_gt: 10]], %{"title" => 10})
@@ -47,32 +77,6 @@ defmodule MatchEngineTest do
       assert %{"score" => 0} == score([title: [_gte: 10]], %{"title" => 9})
       assert %{"score" => 1} == score([title: [_gte: 10]], %{"title" => 10})
       assert %{"score" => 1} == score([title: [_gte: 10]], %{"title" => 11})
-    end
-
-    test "eq w/ array in doc" do
-      assert %{"score" => 1} == score([title: [_eq: "foo"]], %{"title" => ["foo", "bar"]})
-    end
-
-    test "eq w/ array in match" do
-      assert %{"score" => 1} == score([title: [_eq: ["foo"]]], %{"title" => "The foo bar"})
-      assert %{"score" => 0.5} == score([title: [_eq: ["fool", "bar"]]], %{"title" => "The foo bar"})
-      assert %{"score" => 0} == score([title: [_eq: ["foo", "bar"]]], %{"title" => "The fool bear"})
-    end
-
-    test "set overlap (eq w/ arrays on both side)" do
-      assert %{"score" => 1} == score([title: [_eq: ["foo"]]], %{"title" => ["foo"]})
-      assert %{"score" => 0} == score([title: [_eq: ["foo"]]], %{"title" => ["bar"]})
-
-      assert %{"score" => 1} ==
-               score([title: [_eq: ["foo", "bar"]]], %{"title" => ["foo", "bar"]})
-
-      assert %{"score" => 0.5} == score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar"]})
-
-      assert %{"score" => 0.25} ==
-               score([title: [_eq: ["foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
-
-      assert %{"score" => 0.5} ==
-               score([title: [_eq: ["a", "foo"]]], %{"title" => ["foo", "bar", "a", "b"]})
     end
 
     test "weight" do
