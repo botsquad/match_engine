@@ -5,12 +5,12 @@ defmodule MatchEngine.Mixfile do
     [
       app: :match_engine,
       version: File.read!("VERSION"),
-      elixir: "~> 1.5",
+      elixir: "~> 1.12",
       elixirc_options: [warnings_as_errors: true],
       description: description(),
       package: package(),
-      source_url: "https://github.com/botsqd/match_engine",
-      homepage_url: "https://github.com/botsqd/match_engine",
+      source_url: "https://github.com/botsquad/match_engine",
+      homepage_url: "https://github.com/botsquad/match_engine",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -26,7 +26,7 @@ defmodule MatchEngine.Mixfile do
       files: ["lib", "mix.exs", "*.md", "LICENSE", "VERSION"],
       maintainers: ["Arjan Scherpenisse"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/botsqd/match_engine"}
+      links: %{"GitHub" => "https://github.com/botsquad/match_engine"}
     }
   end
 

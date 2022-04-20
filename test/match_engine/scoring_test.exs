@@ -60,13 +60,14 @@ defmodule MatchEngine.ScoringTests do
 
     q = %{"location" => %{"_geo" => %{"lat" => 52.3303715, "lon" => 4.8813892}}}
 
-    first =
+    [first, second] =
       docs
       |> score_all(q)
-      |> hd()
 
     assert first["_match"]["score"] > 0
     assert first["_match"]["distance"] > 0
+
+    assert first["_match"]["distance"] < second["_match"]["distance"]
   end
 
   test "score_all geo, invalid locations" do
