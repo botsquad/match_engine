@@ -56,4 +56,12 @@ defmodule MatchEngine.Geo do
         :error
     end
   end
+
+  def coerce_locations(list) when is_list(list) do
+    list |> Enum.map(&coerce_location/1) |> Enum.reject(&(&1 == :error))
+  end
+
+  def coerce_locations(_) do
+    []
+  end
 end

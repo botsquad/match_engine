@@ -92,4 +92,17 @@ defmodule MatchEngine.ScoringTests do
     # no distance for erroneous lat/lng pairs
     assert error["_match"]["distance"] == nil
   end
+
+  test "score_all geo_poly" do
+    q = %{"_geo_poly" => [[1, 1], [1, 0], [0, 0], [0, 1]]}
+
+    # outside
+    assert score(q, %{"lat" => 2, "lon" => 2})["score"] == 0
+
+    # inside
+    assert score(q, %{"lat" => 0.5, "lon" => 0.5})["score"] == 1
+
+    # on edge
+    assert score(q, %{"lat" => 0.5, "lon" => 0})["score"] == 1
+  end
 end

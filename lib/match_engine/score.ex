@@ -135,6 +135,8 @@ defmodule MatchEngine.Score do
     |> score_map()
   end
 
+  @default_max_distance 100 * 1000
+
   defp score_part({field, [{:_geo, location} | _] = node}, doc) do
     case get_value(doc, field) do
       nil ->
@@ -143,7 +145,7 @@ defmodule MatchEngine.Score do
       value ->
         case {Geo.coerce_location(location), Geo.coerce_location(value)} do
           {{_, _} = a, {_, _} = b} ->
-            max_distance = node[:max_distance] || 100 * 1000
+            max_distance = node[:max_distance] || @default_max_distance
             distance = Geo.distance(a, b)
 
             log_score(distance, max_distance)
@@ -153,6 +155,31 @@ defmodule MatchEngine.Score do
           {_, _} ->
             score_map(0)
         end
+    end
+  end
+
+  defp score_part({field, [{:_geo_poly, points} | _] = node}, doc) do
+    with value when value != nil <- get_value(doc, field),
+         {x_point, y_point} <- Geo.coerce_location(value),
+         poly = [{_, _} | _] <- Geo.coerce_locations(points) do
+      #      max_distance = node[:max_distance] || @default_max_distance
+
+      contained =
+        poly
+        |> Enum.chunk_every(2, 1, [hd(poly)])
+        |> Enum.reject(fn [{_x1, y1}, {_x2, y2}] -> y1 > y_point == y2 > y_point end)
+        |> Enum.reject(fn [{x1, y1}, {x2, y2}] ->
+          not (x_point < (x2 - x1) * (y_point - y1) / (y2 - y1) + x1)
+        end)
+        |> Enum.count()
+        |> Integer.mod(2) == 1
+
+      contained
+      |> truth_score()
+      |> weigh(node)
+      |> score_map()
+    else
+      _ -> score_map(0)
     end
   end
 
