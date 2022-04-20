@@ -102,6 +102,9 @@ defmodule MatchEngine.ScoringTests do
 
     assert score(%{"x" => %{"_geo" => a, "radius" => 3000}}, b)["score"] == 1
     assert score(%{"x" => %{"_geo" => a, "radius" => 2000, "max_distance" => 0}}, b)["score"] == 0
+
+    assert score(%{"x" => %{"_geo" => a, "radius" => 2000, "max_distance" => 1000}}, b)["score"] >
+             0
   end
 
   test "score_all geo_poly" do
