@@ -160,7 +160,7 @@ defmodule MatchEngine.Score do
 
   defp score_part({field, [{:_geo_poly, points} | _] = node}, doc) do
     with value when value != nil <- get_value(doc, field),
-         {x_point, y_point} <- Geo.coerce_location(value),
+         point = {x_point, y_point} <- Geo.coerce_location(value),
          poly = [{_, _} | _] <- Geo.coerce_locations(points) do
       #      max_distance = node[:max_distance] || @default_max_distance
 
@@ -174,10 +174,20 @@ defmodule MatchEngine.Score do
         |> Enum.count()
         |> Integer.mod(2) == 1
 
-      contained
-      |> truth_score()
-      |> weigh(node)
-      |> score_map()
+      case contained do
+        true ->
+          truth_score(true)
+          |> weigh(node)
+          |> score_map()
+
+        false ->
+          max_distance = node[:max_distance] || @default_max_distance
+          distance = Geo.distance(point, Geo.closest_point(point, poly))
+
+          log_score(distance, max_distance)
+          |> weigh(node)
+          |> score_map(%{"distance" => distance})
+      end
     else
       _ -> score_map(0)
     end

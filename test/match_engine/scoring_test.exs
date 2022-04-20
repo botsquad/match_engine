@@ -105,4 +105,35 @@ defmodule MatchEngine.ScoringTests do
     # on edge
     assert score(q, %{"lat" => 0.5, "lon" => 0})["score"] == 1
   end
+
+  @amsterdam [
+    [4.8950958251953125, 52.389849169813694],
+    [4.842224121093749, 52.348763181988105],
+    [4.9321746826171875, 52.347504844796546],
+    [4.94110107421875, 52.38020997185712],
+    [4.8950958251953125, 52.389849169813694]
+  ]
+
+  test "score_all geo_poly w/ max distance " do
+    docs = [
+      %{"city" => "inside", "location" => [4.85595703125, 52.35547370875268]},
+      %{"city" => "outside", "location" => [4.9156951904296875, 52.32946474208912]}
+    ]
+
+    q = %{
+      "location" => %{
+        "_geo_poly" => @amsterdam,
+        "max_distance" => 5000
+      }
+    }
+
+    assert [
+             %{"city" => "inside", "_match" => %{"score" => 1}},
+             %{"city" => "outside", "_match" => %{"score" => s, "distance" => d}}
+           ] = docs |> score_all(q)
+
+    assert trunc(d) == 2031
+    # score = 0.105
+    assert trunc(s * 1000) == 105
+  end
 end
