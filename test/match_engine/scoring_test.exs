@@ -93,6 +93,17 @@ defmodule MatchEngine.ScoringTests do
     assert error["_match"]["distance"] == nil
   end
 
+  test "geo with radius" do
+    a = [4.942474365234375, 52.32316995153697]
+    b = %{"x" => [4.973545074462891, 52.32998926754051]}
+
+    assert score(%{"x" => %{"_geo" => a, "max_distance" => 1000}}, b)["score"] == 0
+    assert score(%{"x" => %{"_geo" => a, "max_distance" => 100_000_000}}, b)["score"] > 0.5
+
+    assert score(%{"x" => %{"_geo" => a, "radius" => 3000}}, b)["score"] == 1
+    assert score(%{"x" => %{"_geo" => a, "radius" => 2000, "max_distance" => 0}}, b)["score"] == 0
+  end
+
   test "score_all geo_poly" do
     q = %{"_geo_poly" => [[1, 1], [1, 0], [0, 0], [0, 1]]}
 

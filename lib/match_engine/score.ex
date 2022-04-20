@@ -146,9 +146,16 @@ defmodule MatchEngine.Score do
         case {Geo.coerce_location(location), Geo.coerce_location(value)} do
           {{_, _} = a, {_, _} = b} ->
             max_distance = node[:max_distance] || @default_max_distance
+            radius = node[:radius] || 0
             distance = Geo.distance(a, b)
 
-            log_score(distance, max_distance)
+            case distance > radius do
+              false ->
+                truth_score(true)
+
+              true ->
+                log_score(distance - radius, max_distance)
+            end
             |> weigh(node)
             |> score_map(%{"distance" => distance})
 
@@ -248,7 +255,13 @@ defmodule MatchEngine.Score do
   end
 
   defp log_score(value, max_value) do
-    max(1 - :math.log(1 + value) / :math.log(1 + max_value), 0)
+    cond do
+      max_value == 0.0 ->
+        0
+
+      true ->
+        max(1 - :math.log(1 + value) / :math.log(1 + max_value), 0)
+    end
   end
 
   defp string_sim("", ""), do: 0

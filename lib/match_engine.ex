@@ -167,6 +167,10 @@ defmodule MatchEngine do
   assert %{"score" => 1, "distance" => 0.0} == score(q, doc)
   ```
 
+  When `radius` is given as an option, all geo points that are within
+  the radius will score a 1 and the max_distance scoring will be in
+  effect for distances larger than the radius.
+
   ### `_geo_poly`
 
   Calculate document score based on its containment inside a given
