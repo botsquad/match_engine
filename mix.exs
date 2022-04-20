@@ -43,7 +43,7 @@ defmodule MatchEngine.Mixfile do
       {:timex, "~> 3.1"},
       {:simetric, "~> 0.2.0"},
       {:poison, "~> 3.0", only: :test},
-      {:ex_doc, "~> 0.18.0", runtime: false, only: :dev}
+      {:ex_doc, "~> 0.19", runtime: false, only: :dev}
     ]
   end
 end
