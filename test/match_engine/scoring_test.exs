@@ -1,7 +1,7 @@
 defmodule MatchEngine.ScoringTests do
   use ExUnit.Case
 
-  @data "test/fixture/regio.json" |> File.read!() |> Poison.decode!()
+  @data "test/fixture/regio.json" |> File.read!() |> Jason.decode!()
 
   import MatchEngine
 
@@ -60,13 +60,14 @@ defmodule MatchEngine.ScoringTests do
 
     q = %{"location" => %{"_geo" => %{"lat" => 52.3303715, "lon" => 4.8813892}}}
 
-    first =
+    [first, second] =
       docs
       |> score_all(q)
-      |> hd()
 
     assert first["_match"]["score"] > 0
     assert first["_match"]["distance"] > 0
+
+    assert first["_match"]["distance"] < second["_match"]["distance"]
   end
 
   test "score_all geo, invalid locations" do
@@ -90,5 +91,63 @@ defmodule MatchEngine.ScoringTests do
     assert error["_match"]["score"] == 0
     # no distance for erroneous lat/lng pairs
     assert error["_match"]["distance"] == nil
+  end
+
+  test "geo with radius" do
+    a = [4.942474365234375, 52.32316995153697]
+    b = %{"x" => [4.973545074462891, 52.32998926754051]}
+
+    assert score(%{"x" => %{"_geo" => a, "max_distance" => 1000}}, b)["score"] == 0
+    assert score(%{"x" => %{"_geo" => a, "max_distance" => 100_000_000}}, b)["score"] > 0.5
+
+    assert score(%{"x" => %{"_geo" => a, "radius" => 3000}}, b)["score"] == 1
+    assert score(%{"x" => %{"_geo" => a, "radius" => 2000, "max_distance" => 0}}, b)["score"] == 0
+
+    assert score(%{"x" => %{"_geo" => a, "radius" => 2000, "max_distance" => 1000}}, b)["score"] >
+             0
+  end
+
+  test "score_all geo_poly" do
+    q = %{"_geo_poly" => [[1, 1], [1, 0], [0, 0], [0, 1]]}
+
+    # outside
+    assert score(q, %{"lat" => 2, "lon" => 2})["score"] == 0
+
+    # inside
+    assert score(q, %{"lat" => 0.5, "lon" => 0.5})["score"] == 1
+
+    # on edge
+    assert score(q, %{"lat" => 0.5, "lon" => 0})["score"] == 1
+  end
+
+  @amsterdam [
+    [4.8950958251953125, 52.389849169813694],
+    [4.842224121093749, 52.348763181988105],
+    [4.9321746826171875, 52.347504844796546],
+    [4.94110107421875, 52.38020997185712],
+    [4.8950958251953125, 52.389849169813694]
+  ]
+
+  test "score_all geo_poly w/ max distance " do
+    docs = [
+      %{"city" => "inside", "location" => [4.85595703125, 52.35547370875268]},
+      %{"city" => "outside", "location" => [4.9156951904296875, 52.32946474208912]}
+    ]
+
+    q = %{
+      "location" => %{
+        "_geo_poly" => @amsterdam,
+        "max_distance" => 5000
+      }
+    }
+
+    assert [
+             %{"city" => "inside", "_match" => %{"score" => 1}},
+             %{"city" => "outside", "_match" => %{"score" => s, "distance" => d}}
+           ] = docs |> score_all(q)
+
+    assert trunc(d) == 2031
+    # score = 0.105
+    assert trunc(s * 1000) == 105
   end
 end

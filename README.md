@@ -1,11 +1,11 @@
 # MatchEngine
 
-[![Build Status](https://travis-ci.org/botsqd/match_engine.svg?branch=master)](https://travis-ci.org/botsqd/match_engine) [![Hex.pm](https://img.shields.io/hexpm/v/match_engine.svg)]()
+[![Elixir CI](https://github.com/botsquad/match_engine/actions/workflows/elixir.yml/badge.svg)](https://github.com/botsquad/match_engine/actions/workflows/elixir.yml) [![Hex.pm](https://img.shields.io/hexpm/v/match_engine.svg)]()
 
 A query language for filtering and scoring of documents, inspired by
 the MongoDB query language and Solr. The query language consists of
-nested Elixir *keyword list*. Each component of the query consists of
-a *key* part and a *value* part. The key part is either a logic
+nested Elixir _keyword list_. Each component of the query consists of
+a _key_ part and a _value_ part. The key part is either a logic
 operator (and/or/not), or a reference to a field, the value part is
 either a plain value, or a value operator.
 
@@ -23,7 +23,6 @@ Example queries:
 ```
 
 Full documentation can be found at [https://hexdocs.pm/match_engine](https://hexdocs.pm/match_engine/MatchEngine.html).
-
 
 ## Installation
 

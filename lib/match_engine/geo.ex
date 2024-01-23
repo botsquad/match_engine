@@ -56,4 +56,54 @@ defmodule MatchEngine.Geo do
         :error
     end
   end
+
+  def coerce_locations(list) when is_list(list) do
+    list |> Enum.map(&coerce_location/1) |> Enum.reject(&(&1 == :error))
+  end
+
+  def coerce_locations(_) do
+    []
+  end
+
+  def closest_point(_, [point]) do
+    point
+  end
+
+  def closest_point(point, [_ | _] = points) do
+    segments = Enum.chunk_every(points, 2, 1, [hd(points)])
+
+    Enum.map(segments, fn [a, b] -> closest_point_on_line_segment(point, a, b) end)
+    |> Enum.map(&{distance(point, &1), &1})
+    |> Enum.sort()
+    |> List.first()
+    |> elem(1)
+  end
+
+  def closest_point_on_line_segment({x, y}, {x1, y1}, {x2, y2}) do
+    a = x - x1
+    b = y - y1
+    c = x2 - x1
+    d = y2 - y1
+
+    dot = a * c + b * d
+    len_sq = c * c + d * d
+
+    param =
+      if len_sq != 0 do
+        dot / len_sq
+      else
+        -1
+      end
+
+    cond do
+      param < 0.0 ->
+        {x1, y1}
+
+      param > 1.0 ->
+        {x2, y2}
+
+      true ->
+        {x1 + param * c, y1 + param * d}
+    end
+  end
 end

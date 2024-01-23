@@ -1,7 +1,8 @@
 defmodule MatchEngine.Query do
   @moduledoc false
 
-  @leaf_operators ~w(_eq _has _hasnt _in _ne _nin _regex _sim _geo _time _lt _lte _gt _gte)a
+  @leaf_operators ~w(_eq _geo _geo_poly _gt _gte _has _hasnt _in _lt _lte _ne _nin _regex _sim _time)a
+
   @logic_operators ~w(_and _or _not)a
 
   def leaf_operators do
@@ -74,7 +75,7 @@ defmodule MatchEngine.Query do
 
   defp preprocess_leaf_op([{:_regex, re} | rest]) do
     re = "(?P<__match__>#{re})"
-    [{:_regex, Regex.compile!(re, "i")} | rest]
+    [{:_regex, Regex.compile!(re, "iu")} | rest]
   end
 
   defp preprocess_leaf_op(node) do

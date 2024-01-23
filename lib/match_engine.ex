@@ -182,6 +182,29 @@ defmodule MatchEngine do
   assert %{"score" => 1, "distance" => 0.0} == score(q, doc)
   ```
 
+  When `radius` is given as an option, all geo points that are within
+  the radius will score a 1 and the max_distance scoring will be in
+  effect for distances larger than the radius.
+
+  ### `_geo_poly`
+
+  Calculate document score based on its containment inside a given
+  geographical polygon.
+
+  Accepts a list of geographical coordinates, each in the same format
+  as `_geo`.
+
+  Like `_geo`, the `max_distance` option can be given to the operator
+  which specifies the maximum cutoff point. It defaults to
+  100km. (100_000).  Distance is scored logarithmically with respect
+  to the maximum distance.
+
+  When the point is inside the polygon, the score is always 1. Only
+  when the point is outside the polygon, the geographical distance
+  from the document point to the closest point on the edge of the
+  polygon is calculated and scored based on the `max_distance`
+  setting.
+
   ### `_time`
 
   Score by an UTC timestamp, relative to the given time.

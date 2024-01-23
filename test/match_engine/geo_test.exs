@@ -18,4 +18,18 @@ defmodule MatchEngine.GeoTest do
 
     assert :error = Geo.coerce_location("foo")
   end
+
+  test "closest_point" do
+    p = {0, 0}
+    assert {0, 0} == Geo.closest_point(p, [{0, 0}])
+
+    assert {0, 0} == Geo.closest_point(p, [{0, 0}, {1, 1}])
+
+    assert {0, 0} == Geo.closest_point(p, [{-1, -1}, {1, 1}])
+
+    assert {0, 0} == Geo.closest_point({-2, 2}, [{-1, -1}, {1, 1}])
+
+    assert {-1, -1} == Geo.closest_point({-200, -12}, [{-1, -1}, {1, 1}])
+    assert {1, 1} == Geo.closest_point({200, 12}, [{-1, -1}, {1, 1}])
+  end
 end
