@@ -109,20 +109,23 @@ Scores on the *in*equality of the argument. ("Not equals")
 
 ### `_has`
 
-Scores when the document's value is a member of the given list.
-
-```
-[role: [_in: ["developer", "freelancer"]]]
-```
-
-### `_hasnt`
-
 Scores when the document's value contains a member of the given list or contains the given word or words
 
 ```
 [tag: [_has: ["production"]]]
 [title: [_has: "The"]]
 [title: [_has: ["The", "title"]]]
+```
+
+### `_hasnt`
+
+Scores when the document's value does NOT contains any member of the given list
+or does not contain any of the given word or words
+
+```
+[tag: [_hasnt: ["production"]]]
+[title: [_hasnt: "The"]]
+[title: [_hasnt: ["The", "title"]]]
 ```
 
 ### `_in`
