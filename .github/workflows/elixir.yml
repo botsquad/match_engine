@@ -18,8 +18,8 @@ jobs:
       MIX_ENV: test
     strategy:
       matrix:
-        otp: ["24.0", "26.0"]
-        elixir: ["1.12", "1.15"]
+        otp: ["26.0", "24.0"]
+        elixir: ["1.15", "1.14"]
 
     steps:
       - uses: actions/checkout@v3
