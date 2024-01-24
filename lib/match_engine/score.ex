@@ -40,26 +40,28 @@ defmodule MatchEngine.Score do
     raise RuntimeError, "Unexpected operator: #{op}"
   end
 
-  defp score_part({field, [{:_ne, v} | rest]}, doc) do
-    score_part({:_not, [{field, [{:_eq, v} | rest]}]}, doc)
+  defp score_part({field, [{:_ne, expected} | rest]}, doc) do
+    score_part({:_not, [{field, [{:_eq, expected} | rest]}]}, doc)
   end
 
-  defp score_part({field, [{:_nin, v} | rest]}, doc) do
-    score_part({:_not, [{field, [{:_in, v} | rest]}]}, doc)
+  defp score_part({field, [{:_hasnt, expected} | rest]}, doc) do
+    score_part({:_not, [{field, [{:_has, expected} | rest]}]}, doc)
   end
 
-  defp score_part({field, [{:_eq, value} | _] = node}, doc) do
+  defp score_part({field, [{:_nin, expected} | rest]}, doc) do
+    score_part({:_not, [{field, [{:_in, expected} | rest]}]}, doc)
+  end
+
+  defp score_part({field, [{:_eq, expected} | rest]}, doc) when is_list(expected) do
+    score_part({field, [{:_has, expected} | rest]}, doc)
+  end
+
+  defp score_part({field, [{:_eq, expected} | _] = node}, doc) do
     case get_value(doc, field) do
-      [] ->
-        0
-
-      items when is_list(items) and is_list(value) ->
-        1 - length(items -- value) / max(length(value), length(items))
-
       items when is_list(items) ->
-        truth_score(Enum.member?(items, value))
+        truth_score(Enum.member?(items, expected))
 
-      ^value ->
+      ^expected ->
         1
 
       _ ->
@@ -69,19 +71,41 @@ defmodule MatchEngine.Score do
     |> score_map()
   end
 
-  @compare_operators %{_lt: :<, _lte: :<=, _gt: :>, _gte: :>=}
-  @compare_operator_keys Map.keys(@compare_operators)
-  defp score_part({field, [{op, value} | _] = node}, doc) when op in @compare_operator_keys do
-    value2 = get_value(doc, field)
+  defp score_part({field, [{:_has, expected} | rest]}, doc) when is_binary(expected) do
+    score_part({field, [{:_has, [expected]} | rest]}, doc)
+  end
 
-    apply(Kernel, @compare_operators[op], [value2, value])
-    |> truth_score()
+  defp score_part({field, [{:_has, expected} | _] = node}, doc) when is_list(expected) do
+    case get_value(doc, field) do
+      [] ->
+        0
+
+      str when is_binary(str) ->
+        (length(expected) - length(expected -- String.split(str))) / length(expected)
+
+      items when is_list(items) ->
+        (length(expected) - length(expected -- items)) / length(expected)
+
+      _ ->
+        0
+    end
     |> weigh(node)
     |> score_map()
   end
 
-  defp score_part({field, [{:_in, list} | _] = node}, doc) do
-    truth_score(Enum.member?(list, get_value(doc, field)))
+  defp score_part({field, [{:_in, expected} | _] = node}, doc) do
+    truth_score(Enum.member?(expected, get_value(doc, field)))
+    |> weigh(node)
+    |> score_map()
+  end
+
+  @compare_operators %{_lt: :<, _lte: :<=, _gt: :>, _gte: :>=}
+  @compare_operator_keys Map.keys(@compare_operators)
+  defp score_part({field, [{op, expected} | _] = node}, doc) when op in @compare_operator_keys do
+    value = get_value(doc, field)
+
+    apply(Kernel, @compare_operators[op], [value, expected])
+    |> truth_score()
     |> weigh(node)
     |> score_map()
   end

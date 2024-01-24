@@ -1,7 +1,7 @@
 defmodule MatchEngine.ScoringTests do
   use ExUnit.Case
 
-  @data "test/fixture/regio.json" |> File.read!() |> Poison.decode!()
+  @data "test/fixture/regio.json" |> File.read!() |> Jason.decode!()
 
   import MatchEngine
 
