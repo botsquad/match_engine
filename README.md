@@ -1,6 +1,6 @@
 # MatchEngine
 
-[![Build Status](https://github.com/botsquad/match_engine/workflows/elixir/badge.svg)](https://github.com/botsquad/match_engine)
+[![CI](https://github.com/botsquad/match_engine/actions/workflows/elixir.yml/badge.svg)](https://github.com/botsquad/match_engine/actions/workflows/elixir.yml)
 [![Module Version](https://img.shields.io/hexpm/v/match_engine.svg)](https://hex.pm/packages/match_engine)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/match_engine/)
 [![Total Download](https://img.shields.io/hexpm/dt/match_engine.svg)](https://hex.pm/packages/match_engine)
