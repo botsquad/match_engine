@@ -162,7 +162,7 @@ distance and Jaro distance.
 Match a regular expression. The input is a string, which gets compiled
 into a regex. This operator scores on the length of match divided by
 the total string length. It is possible to add named captures to the
-regex, which then get added to the `_match` metadata map, as seen in the following exapmle:
+regex, which then get added to the `_match` metadata map, as seen in the following example:
 
 ```
 # regex matches entire string, 100% score
