@@ -291,7 +291,7 @@ defmodule MatchEngine.Score do
   defp string_sim("", ""), do: 0
 
   defp string_sim(a, b) do
-    d1 = 1 - Simetric.Levenshtein.compare(a, b) / max(String.length(a), String.length(b))
+    d1 = 1 - MatchEngine.Levenshtein.compare(a, b) / max(String.length(a), String.length(b))
     d2 = String.jaro_distance(a, b)
     max(d1, d2)
   end

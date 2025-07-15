@@ -41,7 +41,6 @@ defmodule MatchEngine.Mixfile do
   defp deps do
     [
       {:timex, "~> 3.1"},
-      {:simetric, "~> 0.2.0"},
       {:jason, "~> 1.0", only: :test},
       {:ex_doc, "~> 0.19", runtime: false, only: :dev}
     ]
